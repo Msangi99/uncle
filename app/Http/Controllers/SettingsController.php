@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassFee;
 use App\Models\Classe;
+use App\Models\SmsCredential;
 use App\Models\TermPercentage;
 use Illuminate\Http\Request;
 
@@ -14,8 +15,9 @@ class SettingsController extends Controller
         $classes = Classe::orderBy('name')->get();
         $classFees = ClassFee::whereIn('class_id', $classes->pluck('id'))->get()->keyBy('class_id');
         $termPercentages = TermPercentage::orderBy('term_number')->get()->keyBy('term_number');
+        $smsCredential = SmsCredential::getInstance();
 
-        return view('settings.index', compact('classes', 'classFees', 'termPercentages'));
+        return view('settings.index', compact('classes', 'classFees', 'termPercentages', 'smsCredential'));
     }
 
     public function store(Request $request)
@@ -54,5 +56,22 @@ class SettingsController extends Controller
         }
 
         return redirect()->route('settings.index')->with('success', __('Mipangilio imehifadhiwa.'));
+    }
+
+    public function storeSms(Request $request)
+    {
+        $request->validate([
+            'sms_api_key' => ['nullable', 'string', 'max:255'],
+            'sms_sender_id' => ['nullable', 'string', 'max:64'],
+            'sms_url' => ['nullable', 'string', 'url', 'max:255'],
+        ]);
+
+        $cred = SmsCredential::firstOrNew([]);
+        $cred->api_key = $request->input('sms_api_key') ?: null;
+        $cred->sender_id = $request->input('sms_sender_id') ?: null;
+        $cred->url = $request->input('sms_url') ?: null;
+        $cred->save();
+
+        return redirect()->route('settings.index')->with('success', __('Siri za SMS zimehifadhiwa.'));
     }
 }

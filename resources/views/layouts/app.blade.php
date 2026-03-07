@@ -91,12 +91,12 @@
                     </a>
                 </nav>
                 <div class="border-t border-gray-200 dark:border-zinc-800 p-4">
-                    <div class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
-                        <span class="size-8 rounded-full bg-[#FF2D20]/20 flex items-center justify-center text-[#FF2D20] font-medium">
+                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-white transition {{ request()->routeIs('profile.*') ? 'bg-[#FF2D20]/10 text-[#FF2D20] dark:bg-[#FF2D20]/20' : '' }}">
+                        <span class="size-8 rounded-full bg-[#FF2D20]/20 flex items-center justify-center text-[#FF2D20] font-medium shrink-0">
                             {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
                         </span>
                         <span class="truncate font-medium">{{ auth()->user()->name ?? 'User' }}</span>
-                    </div>
+                    </a>
                     <form method="POST" action="{{ route('logout') }}" class="mt-2">
                         @csrf
                         <button

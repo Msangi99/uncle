@@ -2,15 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\SmsCredential;
+
 class SmsCoTzService
 {
     public function send(string $destination, string $message): array
     {
-        $apiKey = config('sms.sms_co_tz.api_key');
-        $senderId = urlencode(config('sms.sms_co_tz.sender_id', ''));
-        $url = config('sms.sms_co_tz.url', 'https://www.sms.co.tz/api.php');
+        $cred = SmsCredential::getInstance();
+        $apiKey = $cred?->api_key ?: config('sms.sms_co_tz.api_key');
+        $senderIdRaw = $cred?->sender_id ?: config('sms.sms_co_tz.sender_id', '');
+        $url = $cred?->url ?: config('sms.sms_co_tz.url', 'https://www.sms.co.tz/api.php');
+        $senderId = urlencode($senderIdRaw);
 
-        if ($apiKey === '' || $senderId === '') {
+        if ($apiKey === '' || $apiKey === null || $senderIdRaw === '') {
             return ['ok' => false, 'detail' => 'SMS API not configured (api_key or sender_id missing).'];
         }
 
@@ -23,8 +27,9 @@ class SmsCoTzService
         }
 
         $message = urlencode($message);
+        $baseUrl = $url ?: 'https://www.sms.co.tz/api.php';
         $query = "do=sms&api_key={$apiKey}&senderid={$senderId}&dest={$destination}&msg={$message}";
-        $fullUrl = $url . '?' . $query;
+        $fullUrl = $baseUrl . '?' . $query;
 
         $context = stream_context_create([
             'http' => ['timeout' => 10],

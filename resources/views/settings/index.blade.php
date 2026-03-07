@@ -39,6 +39,58 @@
             </div>
         @endif
 
+        {{-- Siri za SMS (SMS.co.tz) --}}
+        <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-6 shadow-sm">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-2">{{ __('Siri za SMS (SMS.co.tz)') }}</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ __('Weka API key na Sender ID kutoka sms.co.tz ili kutumia ukurasa wa SMS. Unaweza pia kuacha tupu na kutumia thamani kutoka .env.') }}</p>
+            <form method="POST" action="{{ route('settings.sms.store') }}" class="space-y-4">
+                @csrf
+                <div class="grid gap-4 sm:grid-cols-1">
+                    <div>
+                        <label for="sms_api_key" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('API Key') }}</label>
+                        <flux:input
+                            type="text"
+                            name="sms_api_key"
+                            id="sms_api_key"
+                            value="{{ old('sms_api_key', $smsCredential?->api_key ?? '') }}"
+                            placeholder="{{ __('Weka API key') }}"
+                            variant="outline"
+                            class="w-full rounded-xl border-zinc-200/80 dark:border-white/10"
+                        />
+                    </div>
+                    <div>
+                        <label for="sms_sender_id" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Sender ID') }}</label>
+                        <flux:input
+                            type="text"
+                            name="sms_sender_id"
+                            id="sms_sender_id"
+                            value="{{ old('sms_sender_id', $smsCredential?->sender_id ?? '') }}"
+                            placeholder="{{ __('Weka Sender ID') }}"
+                            variant="outline"
+                            class="w-full rounded-xl border-zinc-200/80 dark:border-white/10"
+                        />
+                    </div>
+                    <div>
+                        <label for="sms_url" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('URL ya API (si lazima)') }}</label>
+                        <flux:input
+                            type="url"
+                            name="sms_url"
+                            id="sms_url"
+                            value="{{ old('sms_url', $smsCredential?->url ?? 'https://www.sms.co.tz/api.php') }}"
+                            placeholder="https://www.sms.co.tz/api.php"
+                            variant="outline"
+                            class="w-full rounded-xl border-zinc-200/80 dark:border-white/10"
+                        />
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <flux:button type="submit" variant="filled" color="blue" class="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5">
+                        {{ __('Hifadhi Siri za SMS') }}
+                    </flux:button>
+                </div>
+            </form>
+        </div>
+
         <form method="POST" action="{{ route('settings.store') }}" class="space-y-8">
             @csrf
 
