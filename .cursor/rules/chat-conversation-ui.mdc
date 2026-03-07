@@ -1,0 +1,49 @@
+---
+description: Chat & conversation UI — Flux + Tailwind, responsive, dark/blue theme, Anime.js
+globs: "**/resources/**"
+alwaysApply: false
+---
+
+# Chat & Conversation UI Standards
+
+Apply these when building or editing chat/conversation interfaces and related UI.
+
+## 1. Flux UI + Tailwind
+
+- Use **Flux** components as the main UI layer (Button, Card, Input, Modal, Icon, etc.) from `livewire/flux`.
+- Compose and customize with **Tailwind** utility classes. Don’t replace Flux with raw HTML when a Flux component exists.
+- Include `@fluxAppearance` and `@fluxScripts` in the layout; import Flux CSS in `resources/css/app.css` per Flux docs.
+
+## 2. Responsive (Mobile, Tablet, Desktop)
+
+- Design **mobile-first**. Start with small viewports, then add `sm:`, `md:`, `lg:`, `xl:` as needed.
+- Breakpoints: mobile (default), `sm` (640px), `md` (768px), `lg` (1024px), `xl` (1280px).
+- Chat/conversation layout must be usable on all three: e.g. stacked on mobile, side-by-side or wider on tablet/desktop.
+- Test list/message width, tap targets (min ~44px), and readable text without horizontal scroll on mobile.
+
+## 3. Icons
+
+- Use **icons** for: send, attach, menu, back, status, actions (edit/delete), and other clear actions.
+- Prefer Flux `<x-flux:icon />` or the project’s icon set; keep style and size consistent (e.g. `size` / `class`).
+- Pair icons with text or `aria-label` where it helps accessibility.
+
+## 4. Main Colors: Dark Blue & Blue
+
+- **Primary palette**: dark blue and blue as main brand colors.
+- Use for: primary buttons, links, active states, headers, key accents.
+- In Tailwind: define or use custom colors, e.g. `blue-900`/`blue-800` for dark blue, `blue-600`/`blue-500` for blue; use `@theme` in CSS if you have a custom palette.
+- Keep contrast and readability (e.g. white or light text on dark blue, dark text on light backgrounds).
+
+## 5. Animations: Prefer Anime.js
+
+- Prefer **Anime.js** for UI animations (entrance, exit, transitions, micro-interactions).
+- Use for: message appear, typing indicator, panel open/close, subtle hover/feedback.
+- Keep animations short and purposeful; avoid blocking interaction. Prefer `anime.js` over ad-hoc CSS animations when the effect is more than a simple transition.
+
+## Quick Checklist
+
+- [ ] Flux components + Tailwind used for chat/conversation UI
+- [ ] Layout works on mobile, tablet, and desktop
+- [ ] Icons used for actions and key states
+- [ ] Dark blue and blue as main colors
+- [ ] Anime.js used for animations where appropriate

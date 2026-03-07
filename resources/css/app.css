@@ -1,3 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source "../**/*.blade.php";
+@source "../**/*.{js,jsx,ts,tsx,vue}";
+@source "../../storage/framework/views/*.php";
+@source "../../vendor/livewire/flux/stubs/**/*.blade.php";
+
+/* Material Icons */
+@import 'material-icons/iconfont/material-icons.css';
