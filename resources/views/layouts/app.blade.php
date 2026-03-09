@@ -58,6 +58,14 @@
                         {{ __('Payments') }}
                     </a>
                     <a
+                        href="{{ route('other-payments.index') }}"
+                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition
+                            {{ request()->routeIs('other-payments.*') ? 'bg-[#FF2D20]/10 text-[#FF2D20] dark:bg-[#FF2D20]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-zinc-800 dark:hover:text-white' }}"
+                    >
+                        <span class="shrink-0 size-5 flex items-center justify-center">📋</span>
+                        {{ __('Malipo mengine') }}
+                    </a>
+                    <a
                         href="{{ route('sms.index') }}"
                         class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition
                             {{ request()->routeIs('sms.index') ? 'bg-[#FF2D20]/10 text-[#FF2D20] dark:bg-[#FF2D20]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-zinc-800 dark:hover:text-white' }}"

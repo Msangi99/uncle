@@ -10,7 +10,11 @@ class Classe extends Model
 {
     protected $table = 'classes';
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'is_exam_class'];
+
+    protected $casts = [
+        'is_exam_class' => 'boolean',
+    ];
 
     public function students(): HasMany
     {

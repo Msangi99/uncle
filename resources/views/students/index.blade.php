@@ -97,7 +97,7 @@
                     </flux:table.columns>
                     <flux:table.rows id="students-table-body">
                         @foreach ($students as $student)
-                            <flux:table.row key="{{ $student->id }}" data-row-num="{{ $loop->iteration }}" data-student-id="{{ $student->id }}" data-fullname="{{ e($student->fullname) }}" data-class-id="{{ $student->class_id }}" data-year="{{ e($student->year) }}" data-contact="{{ e($student->contact ?? '') }}" data-email="{{ e($student->email ?? '') }}" class="{{ ($student->below_required ?? false) ? '!bg-red-100 dark:!bg-red-900/30' : '' }}">
+                            <flux:table.row key="{{ $student->id }}" data-row-num="{{ $loop->iteration }}" data-student-id="{{ $student->id }}" data-fullname="{{ e($student->fullname) }}" data-class-id="{{ $student->class_id }}" data-year="{{ e($student->year) }}" data-contact="{{ e($student->contact ?? '') }}" data-email="{{ e($student->email ?? '') }}" class="{{ ($student->below_required ?? false) ? '!bg-red-100 dark:!bg-red-900/30' : '!bg-green-50 dark:!bg-green-900/20' }}">
                                 <flux:table.cell align="center">
                                     <input type="checkbox" class="student-row-cb rounded border-zinc-300 dark:border-zinc-600 dark:bg-zinc-800" value="{{ $student->id }}" />
                                 </flux:table.cell>

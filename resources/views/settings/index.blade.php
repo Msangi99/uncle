@@ -180,6 +180,49 @@
                 </div>
             </fieldset>
 
+            {{-- Fieldset 3: Malipo mengi (tahadhari, maktaba, ream, etc.) --}}
+            <fieldset class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-6 shadow-sm">
+                <legend class="text-base font-semibold text-gray-900 dark:text-white px-2">
+                    {{ __('Malipo mengi') }}
+                </legend>
+                <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">
+                    {{ __('Weka kiasi (TZS) kwa kila aina ya malipo. Pesa ya mtihani wa taifa inatumika kwa madarasa ya mtihani tu.') }}
+                </p>
+                @php
+                    $ptSettings = $paymentTypeSettings ?? \App\Models\PaymentTypeSetting::getInstance();
+                    $typeKeys = \App\Models\PaymentTypeSetting::typeKeys();
+                @endphp
+                <div class="space-y-4">
+                    @foreach ($typeKeys as $key => $label)
+                        @php
+                            $val = old('payment_types.'.$key);
+                            if ($val === null) {
+                                $val = $ptSettings->{$key} ?? 0;
+                            }
+                            $val = is_numeric($val) ? number_format((float)$val, 2, '.', ',') : (is_string($val) ? $val : '');
+                        @endphp
+                        <div class="flex flex-wrap items-center gap-3">
+                            <label for="pt-{{ $key }}" class="w-56 shrink-0 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {{ $label }}
+                            </label>
+                            <div class="flex flex-1 min-w-[140px] items-center gap-2">
+                                <flux:input
+                                    type="text"
+                                    name="payment_types[{{ $key }}]"
+                                    id="pt-{{ $key }}"
+                                    value="{{ $val }}"
+                                    placeholder="0.00"
+                                    inputmode="decimal"
+                                    variant="outline"
+                                    class="rounded-xl border-zinc-200/80 dark:border-white/10"
+                                />
+                                <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">TZS</span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </fieldset>
+
             <div class="flex justify-end">
                 <flux:button
                     type="submit"

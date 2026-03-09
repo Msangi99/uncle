@@ -5,9 +5,23 @@
 
 @section('content')
     <div class="space-y-6 pb-8">
-        <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('Karibu, ') }}{{ auth()->user()->name ?? __('User') }}</h2>
-            <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ __('Muhtasari wa mfumo wa usimamizi wa shule.') }}</p>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('Karibu, ') }}{{ auth()->user()->name ?? __('User') }}</h2>
+                <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ __('Muhtasari wa mfumo wa usimamizi wa shule.') }}</p>
+            </div>
+            <form method="GET" action="{{ route('dashboard') }}" class="flex items-center gap-2">
+                <label class="text-sm text-gray-600 dark:text-gray-400">{{ __('Mwaka') }}:</label>
+                <select name="year" onchange="this.form.submit()" class="rounded-lg border border-zinc-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white px-2.5 py-1.5 text-sm">
+                    @php
+                        $currentYear = (int) date('Y');
+                        $selectedYear = (int) ($year ?? $currentYear);
+                    @endphp
+                    @for ($y = $currentYear; $y >= $currentYear - 10; $y--)
+                        <option value="{{ $y }}" {{ $selectedYear === $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
+            </form>
         </div>
 
         {{-- Stats cards --}}
@@ -30,12 +44,12 @@
                     </div>
                 </div>
             </a>
-            <a href="{{ route('payments.index') }}" class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-5 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition">
+            <a href="{{ route('payments.index') }}?year={{ $year ?? date('Y') }}" class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-5 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition">
                 <div class="flex items-center gap-3">
                     <span class="flex size-12 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-xl">💰</span>
                     <div>
                         <p class="text-xl font-bold text-gray-900 dark:text-white">{{ number_format($paymentsThisYear ?? 0, 0, '.', ',') }}</p>
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Malipo') }} ({{ $year ?? date('Y') }})</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Jumla ya malipo') }} ({{ $year ?? date('Y') }})</p>
                     </div>
                 </div>
             </a>

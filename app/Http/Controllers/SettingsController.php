@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassFee;
 use App\Models\Classe;
+use App\Models\PaymentTypeSetting;
 use App\Models\SmsCredential;
 use App\Models\TermPercentage;
 use Illuminate\Http\Request;
@@ -16,8 +17,9 @@ class SettingsController extends Controller
         $classFees = ClassFee::whereIn('class_id', $classes->pluck('id'))->get()->keyBy('class_id');
         $termPercentages = TermPercentage::orderBy('term_number')->get()->keyBy('term_number');
         $smsCredential = SmsCredential::getInstance();
+        $paymentTypeSettings = PaymentTypeSetting::getInstance();
 
-        return view('settings.index', compact('classes', 'classFees', 'termPercentages', 'smsCredential'));
+        return view('settings.index', compact('classes', 'classFees', 'termPercentages', 'smsCredential', 'paymentTypeSettings'));
     }
 
     public function store(Request $request)
@@ -27,6 +29,8 @@ class SettingsController extends Controller
             'ada.*' => ['nullable', 'string'],
             'term_percent' => ['required', 'array'],
             'term_percent.*' => ['required', 'numeric', 'min:0', 'max:100'],
+            'payment_types' => ['sometimes', 'array'],
+            'payment_types.*' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         foreach ($request->input('ada', []) as $classId => $amount) {
@@ -54,6 +58,19 @@ class SettingsController extends Controller
                 ['percent_paid' => (float) $percent]
             );
         }
+
+        $paymentTypes = $request->input('payment_types', []);
+        $settings = PaymentTypeSetting::getInstance();
+        foreach (array_keys(PaymentTypeSetting::typeKeys()) as $key) {
+            $val = $paymentTypes[$key] ?? null;
+            $val = is_string($val) ? str_replace(',', '', $val) : $val;
+            $val = (float) ($val ?? 0);
+            if ($val < 0) {
+                $val = 0;
+            }
+            $settings->{$key} = $val;
+        }
+        $settings->save();
 
         return redirect()->route('settings.index')->with('success', __('Mipangilio imehifadhiwa.'));
     }

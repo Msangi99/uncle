@@ -12,7 +12,10 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $year = date('Y');
+        $year = $request->get('year', date('Y'));
+        if (! preg_match('/^\d{4}$/', $year)) {
+            $year = date('Y');
+        }
 
         $classesCount = Classe::count();
         $studentsCount = Student::count();
@@ -23,6 +26,7 @@ class DashboardController extends Controller
         $smsSentCount = SmsLog::where('status', 'sent')->count();
 
         $recentPayments = Payment::with('student.classe')
+            ->where('year', $year)
             ->orderByDesc('paid_at')
             ->orderByDesc('id')
             ->limit(8)

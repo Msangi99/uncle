@@ -19,7 +19,9 @@ class ClassController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'is_exam_class' => ['sometimes', 'boolean'],
         ]);
+        $validated['is_exam_class'] = $request->boolean('is_exam_class');
 
         Classe::create($validated);
 
@@ -30,6 +32,7 @@ class ClassController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
+            'is_exam_class' => ['sometimes', 'boolean'],
         ]);
 
         if ($validator->fails()) {
@@ -39,7 +42,9 @@ class ClassController extends Controller
                 ->with('edit_id', $classe->id);
         }
 
-        $classe->update($validator->validated());
+        $data = $validator->validated();
+        $data['is_exam_class'] = $request->boolean('is_exam_class');
+        $classe->update($data);
 
         return redirect()->route('classes.index')->with('success', __('Darasa limebadilishwa.'));
     }

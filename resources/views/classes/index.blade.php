@@ -42,7 +42,7 @@
                                 <div class="flex items-center gap-1 shrink-0">
                                     <button
                                         type="button"
-                                        onclick="openEditModal({{ $classe->id }}, {{ json_encode($classe->name) }})"
+                                        onclick="openEditModal({{ $classe->id }}, {{ json_encode($classe->name) }}, {{ $classe->is_exam_class ? 'true' : 'false' }})"
                                         class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:hover:bg-zinc-700 dark:hover:text-blue-400"
                                         title="{{ __('Hariri') }}"
                                     >
@@ -92,6 +92,10 @@
                     variant="outline"
                     class="rounded-xl border-zinc-200/80 dark:border-white/10 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 dark:focus-within:border-blue-400"
                 />
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="is_exam_class" id="add-is-exam-class" value="1" class="rounded border-zinc-300 dark:border-zinc-600 dark:bg-zinc-800" {{ old('is_exam_class') ? 'checked' : '' }} />
+                    <label for="add-is-exam-class" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Darasa la mtihani') }}</label>
+                </div>
                 @error('name')
                     <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
@@ -141,6 +145,10 @@
                     variant="outline"
                     class="rounded-xl border-zinc-200/80 dark:border-white/10 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 dark:focus-within:border-blue-400"
                 />
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="is_exam_class" id="edit-is-exam-class" value="1" class="rounded border-zinc-300 dark:border-zinc-600 dark:bg-zinc-800" />
+                    <label for="edit-is-exam-class" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Darasa la mtihani') }}</label>
+                </div>
                 @error('name')
                     <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
@@ -167,10 +175,12 @@
     </dialog>
 
     <script>
-        function openEditModal(id, name) {
+        function openEditModal(id, name, isExamClass) {
             document.getElementById('edit-class-form').action = '{{ url('classes') }}/' + id;
             var inp = document.querySelector('#edit-class-modal input[name="name"]');
             if (inp) inp.value = name;
+            var cb = document.getElementById('edit-is-exam-class');
+            if (cb) cb.checked = !!isExamClass;
             document.getElementById('edit-class-modal').showModal();
         }
     </script>
@@ -181,6 +191,8 @@
                 document.getElementById('edit-class-form').action = '{{ url('classes') }}/' + {{ session('edit_id') }};
                 var inp = document.querySelector('#edit-class-modal input[name="name"]');
                 if (inp) inp.value = {{ json_encode(old('name')) }};
+                var cb = document.getElementById('edit-is-exam-class');
+                if (cb) cb.checked = {{ old('is_exam_class') ? 'true' : 'false' }};
                 document.getElementById('edit-class-modal').showModal();
             @else
                 document.getElementById('add-class-modal').showModal();
