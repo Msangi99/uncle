@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClassFee;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\TermPercentage;
@@ -53,8 +52,7 @@ class PaymentController extends Controller
      */
     private function resolveTermForPayment(Student $student, string $year): int
     {
-        $classFee = ClassFee::where('class_id', $student->class_id)->first();
-        $feeAmount = $classFee ? (float) $classFee->amount : 0;
+        $feeAmount = (float) ($student->fee_amount ?? 0);
 
         $termPercentages = TermPercentage::orderBy('term_number')->get()->keyBy('term_number');
 

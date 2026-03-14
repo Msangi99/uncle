@@ -10,6 +10,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\OtherPaymentsController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentInfoController;
 use Illuminate\Support\Facades\Route;
 
 // Login as first page when opening the project
@@ -36,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
     Route::get('/students/sample', [StudentController::class, 'downloadSample'])->name('students.sample');
     Route::get('/students/export', [StudentController::class, 'export'])->name('students.export');
+    Route::get('/student-info', [StudentInfoController::class, 'index'])->name('student-info.index');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/other-payments', [OtherPaymentsController::class, 'index'])->name('other-payments.index');

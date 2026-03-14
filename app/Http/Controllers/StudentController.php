@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClassFee;
 use App\Models\Classe;
 use App\Models\Payment;
 use App\Models\Student;
@@ -23,7 +22,6 @@ class StudentController extends Controller
         $term = (int) $request->get('term', 1);
         $year = $request->get('year', date('Y'));
 
-        $classFees = ClassFee::whereIn('class_id', $students->pluck('class_id')->unique())->get()->keyBy('class_id');
         $termPercentages = TermPercentage::orderBy('term_number')->get()->keyBy('term_number');
         $termPct = $termPercentages->get($term);
         $percent = $termPct ? (float) $termPct->percent_paid : 25;
@@ -49,15 +47,15 @@ class StudentController extends Controller
         }
 
         foreach ($students as $student) {
-            $fee = $classFees->get($student->class_id);
-            $required = $fee ? (float) $fee->amount * ($percent / 100) : 0;
+            $feeAmount = (float) ($student->fee_amount ?? 0);
+            $required = $feeAmount * ($percent / 100);
             $paid = (float) ($totalsPaid->get($student->id) ?? 0);
             $student->below_required = $required > 0 && $paid < $required;
 
             $paymentLevel = [];
             for ($t = 1; $t <= 4; $t++) {
-                $termReq = $fee && $termPercentages->has($t)
-                    ? (float) $fee->amount * ((float) $termPercentages->get($t)->percent_paid / 100)
+                $termReq = $termPercentages->has($t)
+                    ? $feeAmount * ((float) $termPercentages->get($t)->percent_paid / 100)
                     : 0;
                 $termPaid = (float) ($paidPerStudentTerm[$student->id . '-' . $t] ?? 0);
                 $paymentLevel[$t] = $termReq <= 0 || $termPaid >= $termReq;
@@ -74,11 +72,19 @@ class StudentController extends Controller
             'fullname' => ['required', 'string', 'max:255'],
             'class_id' => ['required', 'exists:classes,id'],
             'year' => ['required', 'string', 'max:50'],
+            'student_type' => ['required', 'in:day,boarding'],
+            'fee_amount' => ['required'],
             'contact' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255'],
         ]);
 
-        Student::create($validated);
+        $feeRaw = is_string($request->input('fee_amount')) ? str_replace(',', '', $request->input('fee_amount')) : $request->input('fee_amount');
+        $fee = max(0, (float) $feeRaw);
+
+        $data = $validated;
+        $data['fee_amount'] = $fee;
+
+        Student::create($data);
 
         return redirect()->route('students.index')->with('success', __('Mwanafunzi ameongezwa.'));
     }
@@ -89,11 +95,19 @@ class StudentController extends Controller
             'fullname' => ['required', 'string', 'max:255'],
             'class_id' => ['required', 'exists:classes,id'],
             'year' => ['required', 'string', 'max:50'],
+            'student_type' => ['required', 'in:day,boarding'],
+            'fee_amount' => ['required'],
             'contact' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255'],
         ]);
 
-        $student->update($validated);
+        $feeRaw = is_string($request->input('fee_amount')) ? str_replace(',', '', $request->input('fee_amount')) : $request->input('fee_amount');
+        $fee = max(0, (float) $feeRaw);
+
+        $data = $validated;
+        $data['fee_amount'] = $fee;
+
+        $student->update($data);
 
         return redirect()->route('students.index')->with('success', __('Mwanafunzi amesasishwa.'));
     }
@@ -147,10 +161,16 @@ class StudentController extends Controller
             if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $email = '';
             }
+            $studentType = $this->normalizeStudentType(trim((string) ($row[3] ?? '')));
+            $feeRaw = trim((string) ($row[4] ?? ''));
+            $feeRaw = str_replace(',', '', $feeRaw);
+            $fee = $feeRaw !== '' ? max(0, (float) $feeRaw) : 0;
             Student::create([
                 'fullname' => $fullname,
                 'class_id' => $classId,
                 'year' => $year,
+                'student_type' => $studentType,
+                'fee_amount' => $fee,
                 'contact' => $contact !== '' ? $contact : null,
                 'email' => $email !== '' ? $email : null,
             ]);
@@ -166,6 +186,15 @@ class StudentController extends Controller
         return $first === 'fullname' || $first === 'jina' || $first === 'name' || $first === 'jina kamili';
     }
 
+    private function normalizeStudentType(string $value): string
+    {
+        $v = strtolower(trim($value));
+        if (in_array($v, ['boarding', 'b', 'bording', 'boading'], true)) {
+            return Student::TYPE_BOARDING;
+        }
+        return Student::TYPE_DAY; // default day
+    }
+
     public function downloadSample(): StreamedResponse
     {
         $spreadsheet = new Spreadsheet();
@@ -174,12 +203,18 @@ class StudentController extends Controller
         $sheet->setCellValue('A1', 'fullname');
         $sheet->setCellValue('B1', 'contact');
         $sheet->setCellValue('C1', 'email');
+        $sheet->setCellValue('D1', 'student_type');
+        $sheet->setCellValue('E1', 'fee_amount');
         $sheet->setCellValue('A2', 'John Doe');
         $sheet->setCellValue('B2', '0712345678');
         $sheet->setCellValue('C2', 'john@example.com');
+        $sheet->setCellValue('D2', 'day');
+        $sheet->setCellValue('E2', '500000');
         $sheet->setCellValue('A3', 'Jane Smith');
         $sheet->setCellValue('B3', '');
         $sheet->setCellValue('C3', 'jane@school.com');
+        $sheet->setCellValue('D3', 'boarding');
+        $sheet->setCellValue('E3', '800000');
 
         $writer = new Xlsx($spreadsheet);
         $filename = 'students_sample.xlsx';
@@ -219,8 +254,9 @@ class StudentController extends Controller
         $sheet->setCellValue('B1', __('Jina kamili'));
         $sheet->setCellValue('C1', __('Darasa'));
         $sheet->setCellValue('D1', __('Mwaka'));
-        $sheet->setCellValue('E1', __('Simu'));
-        $sheet->setCellValue('F1', __('Barua pepe'));
+        $sheet->setCellValue('E1', __('Aina'));
+        $sheet->setCellValue('F1', __('Simu'));
+        $sheet->setCellValue('G1', __('Barua pepe'));
 
         $row = 2;
         foreach ($students as $index => $student) {
@@ -228,8 +264,9 @@ class StudentController extends Controller
             $sheet->setCellValue('B' . $row, $student->fullname);
             $sheet->setCellValue('C' . $row, $student->classe->name);
             $sheet->setCellValue('D' . $row, $student->year);
-            $sheet->setCellValue('E' . $row, $student->contact ?? '');
-            $sheet->setCellValue('F' . $row, $student->email ?? '');
+            $sheet->setCellValue('E' . $row, $student->student_type === \App\Models\Student::TYPE_BOARDING ? __('Boarding') : __('Day'));
+            $sheet->setCellValue('F' . $row, $student->contact ?? '');
+            $sheet->setCellValue('G' . $row, $student->email ?? '');
             $row++;
         }
 

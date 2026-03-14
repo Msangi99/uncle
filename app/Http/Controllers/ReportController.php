@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClassFee;
 use App\Models\Classe;
 use App\Models\Payment;
 use App\Models\Student;
@@ -39,7 +38,6 @@ class ReportController extends Controller
             ->orderBy('fullname')
             ->get();
 
-        $classFees = ClassFee::where('class_id', $classId)->get()->keyBy('class_id');
         $termPercentages = TermPercentage::orderBy('term_number')->get()->keyBy('term_number');
 
         $studentIds = $students->pluck('id')->toArray();
@@ -73,14 +71,14 @@ class ReportController extends Controller
 
         $row = 2;
         foreach ($students as $index => $student) {
-            $fee = $classFees->get($student->class_id);
-            $totalRequired = $fee ? (float) $fee->amount : 0;
+            $feeAmount = (float) ($student->fee_amount ?? 0);
+            $totalRequired = $feeAmount;
             $totalPaid = 0;
             $m1 = $m2 = $m3 = $m4 = '✗';
 
             for ($t = 1; $t <= 4; $t++) {
-                $termReq = $fee && $termPercentages->has($t)
-                    ? (float) $fee->amount * ((float) $termPercentages->get($t)->percent_paid / 100)
+                $termReq = $termPercentages->has($t)
+                    ? $feeAmount * ((float) $termPercentages->get($t)->percent_paid / 100)
                     : 0;
                 $termPaid = (float) ($paidPerStudentTerm[$student->id . '-' . $t] ?? 0);
                 $totalPaid += $termPaid;

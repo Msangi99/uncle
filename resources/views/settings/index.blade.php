@@ -93,57 +93,13 @@
 
         <form method="POST" action="{{ route('settings.store') }}" class="space-y-8">
             @csrf
-
-            {{-- Fieldset 1: Ada kulingana na madarasa --}}
-            <fieldset class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-6 shadow-sm">
-                <legend class="text-base font-semibold text-gray-900 dark:text-white px-2">
-                    {{ __('Ada kulingana na madarasa') }}
-                </legend>
-                <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">
-                    {{ __('Weka kiasi cha ada (TZS au kitengo chako) kwa kila darasa.') }}
-                </p>
-                <div class="space-y-4">
-                    @forelse ($classes as $class)
-                        @php
-                            $fee = $classFees->get($class->id);
-                            $adaValue = old('ada.'.$class->id);
-                            if ($adaValue !== null) {
-                                $adaDisplay = number_format((float) str_replace(',', '', $adaValue), 2, '.', ',');
-                            } else {
-                                $adaDisplay = $fee ? number_format($fee->amount, 2, '.', ',') : '';
-                            }
-                        @endphp
-                        <div class="flex flex-wrap items-center gap-3">
-                            <label for="ada-{{ $class->id }}" class="w-40 shrink-0 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {{ $class->name }}
-                            </label>
-                            <div class="flex flex-1 min-w-[140px] items-center gap-2">
-                                <flux:input
-                                    type="text"
-                                    name="ada[{{ $class->id }}]"
-                                    id="ada-{{ $class->id }}"
-                                    value="{{ $adaDisplay }}"
-                                    placeholder="0.00"
-                                    inputmode="decimal"
-                                    variant="outline"
-                                    class="rounded-xl border-zinc-200/80 dark:border-white/10"
-                                />
-                                <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">TZS</span>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Hakuna madarasa bado. Ongeza madarasa kwanza.') }}</p>
-                    @endforelse
-                </div>
-            </fieldset>
-
-            {{-- Fieldset 2: Asilimia ya ada iliyolipwa kwa kila msimu (misimu 4) --}}
+            {{-- Asilimia ya ada iliyolipwa kwa kila msimu (misimu 4) --}}
             <fieldset class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-6 shadow-sm">
                 <legend class="text-base font-semibold text-gray-900 dark:text-white px-2">
                     {{ __('Zitalipwa kwa misimu minne kwa mwaka') }}
                 </legend>
                 <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">
-                    {{ __('Weka asilimia ya ada inayolipwa kwa kila msimu. Mf. Msimu 1 = 25% inamaanisha msimu wa kwanza ulipapo ada ni 25% ya jumla.') }}
+                    {{ __('Weka asilimia ya ada inayolipwa kwa kila msimu. Asilimia hii inatumika kwa ada inayomfaa mwanafunzi (Day au Boarding). Mf. Msimu 1 = 25% inamaanisha mwanafunzi anahitaji kulipa 25% ya ada yake (ya Day au Boarding).') }}
                 </p>
                 <div class="grid gap-4 sm:grid-cols-2">
                     @foreach (config('school.terms', []) as $term => $termCfg)
